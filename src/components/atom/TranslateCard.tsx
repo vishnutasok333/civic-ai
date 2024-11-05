@@ -13,17 +13,17 @@ interface TranslateCardProps {
 const TranslateCard: React.FC<TranslateCardProps> = ({ lang1, setLang1, lang2, setLang2 }) => {
 
 
-    return (<div className="w-full flex flex-row">
+    return (<div className="flex flex-row">
         <div className="flex flex-col items-start gap-[8px] shrink-0">
             {/* <h1 className="font-Nunito text-[18px] font-normal">From</h1> */}
-            <div className="xl:w-[256px] min-w-[110px]">
+            <div className="xl:w-[256px] min-w-[110px] bg-white rounded-[10px]">
                 <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label"><h1 className="flex gap-2"><span className="hidden md:flex">Translate</span> from</h1></InputLabel>
+                    <InputLabel id="demo-simple-select-label"><h1 className="flex gap-2">from</h1></InputLabel>
                     <Select
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         value={lang1}
-                        label="Translate from"
+                        label="from"
                         onChange={(e) => setLang1(e.target.value)}
                     >
                         <MenuItem value="English">English</MenuItem>
@@ -51,14 +51,14 @@ const TranslateCard: React.FC<TranslateCardProps> = ({ lang1, setLang1, lang2, s
                     <option value="English">English</option>
                     <option value="Maldrin">Maldrin</option>
                 </select> */}
-            <div className="xl:w-[256px] min-w-[110px]">
+            <div className="xl:w-[256px] min-w-[110px] bg-white rounded-[10px]">
                 <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label"><h1 className="flex gap-2"><span className="hidden md:flex">Translate</span> To</h1></InputLabel>
+                    <InputLabel id="demo-simple-select-label"><h1 className="flex gap-2">To</h1></InputLabel>
                     <Select
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         value={lang2}
-                        label="Translate to"
+                        label="to"
                         onChange={(e) => setLang2(e.target.value)}
                     >
                         <MenuItem value="English">English</MenuItem>

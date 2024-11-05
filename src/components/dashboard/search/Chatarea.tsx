@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { Skeleton } from "@mui/material";
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import Markdown from 'marked-react';
+import ncs from '../../../assets/images/NetstratumLogo-Reound.png'
 // import Skeleton from "../../atom/skeleton/skeleton";
 
 interface Message {
@@ -71,23 +72,23 @@ export const ChatArea = () => {
                 }
                 let chunk = decoder.decode(value, { stream: true });
                 text += chunk.slice(0, chunk.length - 1);
-                const cleanedText = text.replace(/(\b\w)\s+(\w\b)/g, '$1$2');
+                // const cleanedText = text.replace(/(\b\w)\s+(\w\b)/g, '$1$2');
 
-                // Step 2: Remove unnecessary line breaks.
-                const singleLineText = cleanedText.replace(/\n+/g, ' ');
+                // // Step 2: Remove unnecessary line breaks.
+                // const singleLineText = cleanedText.replace(/\n+/g, ' ');
 
-                // Step 3: Remove any extra spaces around punctuation.
-                const formattedText = singleLineText.replace(/\s+([.,])/g, '$1');
+                // // Step 3: Remove any extra spaces around punctuation.
+                // const formattedText = singleLineText.replace(/\s+([.,])/g, '$1');
 
-                // Step 4: Remove spaces around hyphens in hyphenated words.
-                const fixedText = formattedText.replace(/\s*-\s*/g, '-');
+                // // Step 4: Remove spaces around hyphens in hyphenated words.
+                // const fixedText = formattedText.replace(/\s*-\s*/g, '-');
                 
                 setMessages((prev) => {
                     if (prev[prev.length - 1].role !== "assistant") {
-                        return [...prev, { role: "assistant", content: fixedText }];
+                        return [...prev, { role: "assistant", content: text }];
                     } else {
                         let updatedMessages = [...prev];
-                        updatedMessages[updatedMessages.length - 1].content = fixedText;
+                        updatedMessages[updatedMessages.length - 1].content = text;
                         return updatedMessages;
                     }
                 });
@@ -198,16 +199,16 @@ export const ChatArea = () => {
     return (
         <div className="">
             <div className="flex flex-col py-4 items-center basis-1/4 w-full ">
-                <div className="xl:w-[78.75rem] w-full flex basis-1/4">
-                    <div className="chat-container h-[calc(100vh-200px)] sm:h-[calc(100vh-280px)] overflow-y-auto" ref={chatBoxRef}>
-                        <div className="chat-box flex flex-col gap-4 ">
+                <div className="xl:max-w-[78.75rem] w-full flex basis-1/4">
+                    <div className="chat-container h-[calc(100vh-200px)] sm:h-[calc(100vh-280px)] overflow-y-auto lg:w-[100%]" ref={chatBoxRef}>
+                        <div className="chat-box flex flex-col gap-4">
                             {messages.map((msg, index) => (
-                                <div key={index} className={` flex flex-col gap-4 ${msg.role === "user" ? "justify-end " : " "}`}>
+                                <div key={index} className={`flex flex-col gap-4 ${msg.role === "user" ? "justify-end " : "justify-end "}`}>
                                     <div className="flex flex-row gap-2">
-                                        <div className={` ${msg.role === "user" ? 'bg-gradient-to-t from-[#003] to-[#003] w-[32px] h-[32px] rounded-[15px]' : "w-[32px] h-[32px] border-none fixed"} text-white flex items-center justify-center border-white border-2`}>{msg.role === "user" ? token.name?.slice(0, 1) : ""}</div>
+                                        <div className={` ${msg.role === "user" ? 'bg-gradient-to-t from-[#003] to-[#003] w-[32px] h-[32px] rounded-[15px]' : "w-[32px] h-[32px] border-none"} text-white flex shrink-0 items-center justify-center border-white border-2`}>{msg.role === "user" ? token.name?.slice(0, 1) : <img src={ncs}/>}</div>
                                         <div className="flex flex-col items-start gap-[8px]">
-                                            <span className={`${msg.role === "user" ? "bg-white" : "bg-gradient-to-t from-[#003] to-[#003] text-white "} text-[18px] font-normal font-Nunito rounded-lg p-4 w-fit`}><Markdown>{msg.content}</Markdown></span>
-                                            {(!isLoading && done && msg.role === "assistant" && index === messages.length - 1) && <div className="flex items-center gap-[8px]">
+                                            <p className={`${msg.role === "user" ? "bg-white" : "bg-white "} text-[18px] font-normal font-Nunito rounded-lg p-4 lg:max-w-[756px]`}><Markdown>{msg.content}</Markdown></p>
+                                            {(!isLoading && done && msg.role === "assistant") && <div className="flex items-center gap-[8px]">
                                                 <button className="flex py-[6px] px-[12px] justify-center items-center gap-[10px] rounded-[50px] border-[1px] border-[rgba(255, 255, 255, 0.12)] bg-slate-200 text-black font-Nunito text-[12px] font-normal" onClick={() => handleButtonClick("summary")}>Summary</button>
                                                 <button className="flex py-[6px] px-[12px] justify-center items-center gap-[10px] rounded-[50px] border-[1px] border-[rgba(255, 255, 255, 0.12)] bg-slate-200 text-black font-Nunito text-[12px] font-normal" onClick={() => handleButtonClick("keynotes")}>Key Notes</button>
                                                 <button className="flex py-[6px] px-[12px] justify-center items-center gap-[10px] rounded-[50px] border-[1px] border-[rgba(255, 255, 255, 0.12)] bg-slate-200 text-black font-Nunito text-[12px] font-normal" onClick={() => handleButtonClick("actions")}>Actions</button>
@@ -217,9 +218,9 @@ export const ChatArea = () => {
 
                                 </div>
                             ))}
-                            {isLoading && (<div className="flex flex-col gap-0 md:w-[460px]">
-                                {/* // <Skeleton /> */}
-                                <Skeleton height="70px" width="md:30rem" />
+                            {isLoading && (<div className="flex flex-row items-center gap-4 md:min-w-[460px] w-full">
+                                <Skeleton className="rounded-full" variant="circular" width={32} height={32}/>
+                                <Skeleton height={44} className="rounded-lg lg:w-[956px]"/>
                                 {/* <Skeleton height="70px" width="md:40rem"/> */}
 
                             </div>)}
