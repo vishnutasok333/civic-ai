@@ -1,6 +1,6 @@
 import { KeyboardEventHandler } from "react";
 
-interface InputAreaProps {
+export interface InputAreaProps {
     id?: string;
     type?: string;
     value?: string;

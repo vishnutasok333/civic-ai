@@ -7,6 +7,8 @@ import { useSelector } from "react-redux";
 import Loader from "../../atom/Loader/Loader";
 import { Skeleton } from "@mui/material";
 import Notification from "../../atom/Notification";
+import Markdown from 'marked-react';
+import ncs from '../../../assets/images/NetstratumLogo-Reound.png'
 // import { Skeleton } from "@mui/material";
 // import LawExplainerCard from "../../atom/defaultcard/LawExplainerCard"
 
@@ -18,7 +20,7 @@ interface Message {
 const Translate = () => {
 
     const [text, setText] = useState<string>("");
-    const [audioFile, setAudioFile] = useState<File | null>(null);
+    const [audioFile, setAudioFile] = useState<null | string>(null);
     const [lang1, setLang1] = useState<string>("English")
     const [lang2, setLang2] = useState<string>("Spanish")
     const [messages, setMessages] = useState<Message[]>([])
@@ -27,9 +29,10 @@ const Translate = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const authToken = useSelector((state: any) => state.auth.authToken);
+    const token = useSelector((state: any) => state.auth.token);
     // const audioRef = useRef(null);
 
-    const handleFileUpload = async () => {
+    const handleFileUpload = async (): Promise<void> => {
         const fileInput = fileInputRef.current;
         const file = fileInput?.files?.[0];
 
@@ -54,34 +57,28 @@ const Translate = () => {
             let resultText = "";
 
             // Stream the result as chunks
-            const readStream = async () => {
+            const readStream = async (): Promise<void> => {
                 if (!reader) return;
                 const { done, value } = await reader.read();
                 if (done) {
                     setLoading(false)
+                    handleSend(resultText)
                     console.log("Transcription complete")
                     return;
                 }
                 resultText += decoder.decode(value, { stream: true });
                 setText(resultText);
                 // Continue reading the next chunk
-                readStream();
+                await readStream();
             };
-            readStream();
+            await readStream();
         } catch (error) {
             console.error("Error uploading file:", error);
         }
 
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (files && files[0]) {
-            setAudioFile(files[0]);
-            setText(""); // Clear previous transcription
-            handleFileUpload()
-        }
-    };
+
 
     const handleSend = async (userInput: string) => {
 
@@ -120,9 +117,9 @@ const Translate = () => {
 
                 if (!reader) return;
                 const { done, value } = await reader.read();
-                // setIsLoading(false)
+                setIsLoading(false)
                 if (done) {
-                    setIsLoading(false); // Stop loading when the response is complete 
+                    // setIsLoading(false); // Stop loading when the response is complete 
                     // setAbortController(null)
                     // setDone(true);
                     return;
@@ -148,7 +145,7 @@ const Translate = () => {
         }
     };
 
-    const handleButtonClick = async () => {
+    const handleButtonClick = async () => {                                       //for summarize, keynotes and actions
 
         const lastAssistantMessage = messages
             .slice()
@@ -156,18 +153,13 @@ const Translate = () => {
             .find((msg) => msg.role === "assistant");
 
         let messageToSend = `Summarize and give the response starting by bold letters in ${lang2}, "Here is your Summarized text": ${lastAssistantMessage?.content}`;
-
         const userMessage = { role: "user", content: messageToSend };
-
         if (!lastAssistantMessage) return;
-
         setIsLoading(true);
-
         const Payload = {
             messages: [userMessage],
             collections: []
         }
-
         const response = await fetch(API_ROOT + "/privy", {
             method: "POST",
             headers: {
@@ -184,8 +176,9 @@ const Translate = () => {
 
             if (!reader) return;
             const { done, value } = await reader.read();
+            setIsLoading(false);
             if (done) {
-                setIsLoading(false); // Stop loading when the response is complete 
+                // setIsLoading(false); // Stop loading when the response is complete 
                 // setAbortController(null)
                 // setDone(true);
                 setMessages((prev) => [
@@ -207,6 +200,16 @@ const Translate = () => {
         readStream();
     }
 
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files && files[0]) {
+            let url = URL.createObjectURL(files[0])
+            setAudioFile(url);
+            setText(""); // Clear previous transcription
+            await handleFileUpload();
+        }
+    };
+
     // console.log("translated messages", messages);
 
 
@@ -215,20 +218,29 @@ const Translate = () => {
             <div className="flex row-start-1 md:row-span-6 row-span-5 col-span-full xl:col-start-2 xl:col-span-8 w-full h-[560px] pb-2">
 
 
-                <div className="chat-box flex flex-col gap-4 mt-4 overflow-auto md:min-w-[656px]">
-                    {(text && !loading) && <div className="bg-white flex flex-col text-lg font-normal font-Nunito rounded-lg p-4 gap-4">
-                        {text}
-                        <span className="flex justify-center italic text-sm w-full text-gray-700">Select the Languages for Translation and press Enter</span>
+                <div className="chat-box flex flex-col gap-4 mt-4 overflow-auto lg:min-w-[656px] w-full">
+                    {(text && !loading) && <div className="flex flex-row gap-4">
+                        <div className={`bg-gradient-to-t from-[#003] to-[#003] w-[32px] h-[32px] rounded-[15px] text-white flex shrink-0 items-center justify-center`}>{token.name?.slice(0, 1)}</div>
+                        <div className="flex flex-col text-lg font-normal font-Nunito rounded-lg p-4 gap-4 bg-white lg:max-w-[60%]">
+                            {text}
+                            <span className="flex justify-center italic text-sm w-full text-gray-700">Select the Languages for Translation and press Enter</span>
+                        </div>
                     </div>}
                     {loading && <Skeleton height="196px" />}
                     {messages.map((msg, index) => (
                         <div key={index}>
                             <div className="flex flex-col items-start gap-[8px]">
                                 {/* <span className={`${msg.role === "assistant" ? "bg-white" : "bg-gradient-to-t from-[#003] to-[#003] text-white "} text-[18px] font-normal font-Nunito rounded-lg p-4 w-fit`}>{msg.content}</span> */}
-                                {(!isLoading && msg.role === "assistant") && <><span className="flex flex-col bg-gradient-to-t from-[#003] to-[#003] text-white text-lg font-normal font-Nunito rounded-lg p-4 w-fit">{msg.content}</span>
-                                    <div className="flex items-center gap-[8px]">
-                                        <button className="flex py-[6px] px-[12px] justify-center items-center gap-[10px] rounded-[50px] border-[1px] border-[rgba(255, 255, 255, 0.12)] bg-slate-200 text-black font-Nunito text-[12px] font-normal" onClick={handleButtonClick}>Summary</button>
-                                        </div></>}
+                                {(msg.role === "assistant") &&
+                                    <div className="flex flex-row gap-4">
+                                        <div className={`w-[32px] h-[32px] rounded-[15px] flex shrink-0 items-center justify-center`}><img src={ncs} /></div>
+                                        <div className="flex flex-col gap-2">
+                                            <span className="bg-white text-lg font-normal font-Nunito rounded-lg p-4 w-fit flex flex-col gap-2"><h1 className="font-bold font-Nunito text-lg">Your Translated text:</h1><Markdown>{msg.content}</Markdown></span>
+                                            <div className="flex items-center gap-[8px]">
+                                                <button className="flex py-[6px] px-[12px] justify-center items-center gap-[10px] rounded-[50px] border-[1px] border-slate-500 hover:bg-slate-200 text-black font-Nunito text-[12px] font-normal" onClick={handleButtonClick}>Summary</button>
+                                            </div>
+                                        </div>
+                                    </div>}
                             </div>
                         </div>
 
@@ -237,16 +249,16 @@ const Translate = () => {
                 </div>
             </div>
 
-            <div className="xl:col-start-2 xl:col-span-8 md:row-span-1 row-start-7 col-span-full h-full flex md:flex-row flex-col md:justify-center justify-end items-end gap-[10px] pb-2">
-                <div className="flex md:flex-row flex-col items-start gap-5 w-full">
-                    {audioFile && (
-                        <div className="flex md:flex-row items-center">
-                            <audio controls src={URL.createObjectURL(audioFile)} controlsList="nodownload" className="w-48 md:w-60" />
-                            {/* <audio ref={audioRef} src={URL.createObjectURL(audioFile)} style={{ display: 'none' }} /> */}
-                            {/* <button className="bg-orange-300 hover:bg-orange-500 p-4 rounded-md md:w-24" onClick={handleFileUpload}>{!loading ? "Extract" : <Loader size="sm" />}</button> */}
-                            {/* <div className="flex shrink-0 hover:bg-red-500" onClick={() => setAudioFile(null)}><Closesvg /></div> */}
-                        </div>
-                    )}
+            <div className="xl:col-start-2 xl:col-span-8 md:row-span-1 row-start-7 col-span-full h-full flex md:flex-row flex-col justify-center items-center gap-[10px] pb-2">
+                <div className="flex md:flex-row flex-col justify-center items-center gap-5 w-full">
+                    {/* {audioFile && ( */}
+                    {/* // <div className="flex md:flex-row items-center"> */}
+                    {/* <audio controls src={audioFile} controlsList="nodownload" className="w-48 md:w-60" /> */}
+                    {/* <audio ref={audioRef} src={URL.createObjectURL(audioFile)} style={{ display: 'none' }} /> */}
+                    {/* <button className="bg-orange-300 hover:bg-orange-500 p-4 rounded-md md:w-24" onClick={handleFileUpload}>{!loading ? "Extract" : <Loader size="sm" />}</button> */}
+                    {/* <div className="flex shrink-0 hover:bg-red-500" onClick={() => setAudioFile(null)}><Closesvg /></div> */}
+                    {/* </div> */}
+                    {/* // )} */}
                     <TranslateCard lang1={lang1} lang2={lang2} setLang1={setLang1} setLang2={setLang2} />
                 </div>
             </div>
@@ -272,8 +284,8 @@ const Translate = () => {
                             </div>
                             <label
                                 htmlFor="audioFile"
-                                className="flex justify-center items-center gap-[10px] shrink-0 rounded-[10px] cursor-pointer hover:bg-gray-300 bg-gray-200">
-                                <div className="p-1"><ListMusic className="shrink-0 md:w-[28px] md:h-[28px] hover:bg-orange-300 " /></div>
+                                className="flex justify-center items-center gap-[10px] shrink-0 rounded-[10px] cursor-pointer  hover:bg-orange-300  bg-gray-200">
+                                <div className="p-1"><ListMusic className="shrink-0 md:w-[28px] md:h-[28px]" /></div>
                             </label>
                             <input
                                 type="text"
