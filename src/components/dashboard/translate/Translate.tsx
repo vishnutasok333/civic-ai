@@ -214,8 +214,8 @@ const Translate = () => {
 
 
     return (<div className="w-full h-full overflow-hidden">
-        <div className="grid grid-cols-10 md:grid-rows-7 items-center w-full h-full overflow-hidden">
-            <div className="flex row-start-1 md:row-span-6 row-span-5 col-span-full xl:col-start-2 xl:col-span-8 w-full h-[560px] pb-2">
+        <div className="grid grid-cols-10 md:grid-rows-7 items-center w-full h-full overflow-hidden ">
+            <div className="flex row-start-1 md:row-span-6 row-span-5 col-span-full xl:col-start-2 xl:col-span-8 w-full h-[calc(100vh-295px)] pb-2">
 
 
                 <div className="chat-box flex flex-col gap-4 mt-4 overflow-auto lg:min-w-[656px] w-full">

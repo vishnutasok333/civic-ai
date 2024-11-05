@@ -71,7 +71,8 @@ export const ChatArea = () => {
                     return;
                 }
                 let chunk = decoder.decode(value, { stream: true });
-                text += chunk.slice(0, chunk.length - 1);
+                chunk = chunk.slice(0, chunk.length - 1);
+                text += chunk
                 // const cleanedText = text.replace(/(\b\w)\s+(\w\b)/g, '$1$2');
 
                 // // Step 2: Remove unnecessary line breaks.
@@ -82,7 +83,8 @@ export const ChatArea = () => {
 
                 // // Step 4: Remove spaces around hyphens in hyphenated words.
                 // const fixedText = formattedText.replace(/\s*-\s*/g, '-');
-                
+                console.log(`___${chunk}___`);
+
                 setMessages((prev) => {
                     if (prev[prev.length - 1].role !== "assistant") {
                         return [...prev, { role: "assistant", content: text }];
@@ -96,6 +98,7 @@ export const ChatArea = () => {
                 readStream();
             };
             readStream();
+
         }
     };
 
@@ -125,10 +128,12 @@ export const ChatArea = () => {
         let messageToSend;
         switch (actionType) {
             case 'summary':
-                messageToSend = `Summarize and give the response starting by bold letters, "Here is your Summarized text": ${lastAssistantMessage?.content}`;
+                messageToSend = `You are a bot that summarizes a content. stream by sentance, make markdown text friendly. If you don't know the answer, just say that you don't know. don't brake the word, Use three sentance maximum and keep the answer consise.\n
+    Here is the retrieved content: \n
+    ${lastAssistantMessage?.content}`;
                 break;
             case 'keynotes':
-                messageToSend = `Provide keynotes starting by bold letters, "Here are your Keynotes": ${lastAssistantMessage?.content}`;
+                messageToSend = `generate keynotes as list for the following: ${lastAssistantMessage?.content}`;
                 break;
             case 'actions':
                 messageToSend = `List actions starting by bold letters, "Here are your Actions": ${lastAssistantMessage?.content}`;
@@ -176,7 +181,7 @@ export const ChatArea = () => {
             }
             let chunk = decoder.decode(value, { stream: true });
             text += chunk
-            text = text.trimEnd().replace(/\s+/g, ' ');
+            text = text.trimEnd().replace(/\s+/g, ' ')
             // .slice(0, chunk.length - 1);
             // setMessages((prev) => [
             //     ...prev,
