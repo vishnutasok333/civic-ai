@@ -198,7 +198,7 @@ export const ChatArea = () => {
 
     return (
         <div className="">
-            <div className="flex flex-col py-4 items-center basis-1/4 w-full ">
+            <div className="flex flex-col py-4 items-center basis-1/4 w-full">
                 <div className="xl:max-w-[78.75rem] w-full flex basis-1/4">
                     <div className="chat-container h-[calc(100vh-200px)] sm:h-[calc(100vh-280px)] overflow-y-auto lg:w-[100%]" ref={chatBoxRef}>
                         <div className="chat-box flex flex-col gap-4">
@@ -229,7 +229,7 @@ export const ChatArea = () => {
                 </div>
 
                 <div className="flex w-full sm:py-[30px] flex-col items-center justify-center gap-[10px] bottom-0">
-                    <div className="flex xl:w-[78.75rem] w-full h-[80px] py-[18px] px-[24px] justify-end flex-col items-center gap-[10px] rounded-[10px] bg-white">
+                    <div className="flex xl:max-w-[78.75rem] w-full h-[80px] py-[18px] px-[24px] justify-end flex-col items-center gap-[10px] rounded-[10px] bg-white">
                         <div className="flex justify-between items-center flex-grow shrink-0 basis-0 bg-white h-full w-full">
                             <div className="flex lg:w-[638px] w-full items-center gap-[12px]">
                                 <div className="w-[32px] h-[32px] flex justify-center items-center gap-[10px] shrink-0 rounded-[10px] cursor-pointer">
